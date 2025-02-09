@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediksi</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='images/prediksi.jpeg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+        }
+        
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.78); /* Layer transparan */
+            filter: blur(10px); /* Efek blur */
+            z-index: -1;
+        }
+        
+        #sidebar {
+            width: 250px;
+            background-color: #f8f9fa;
+            height: 100vh;
+            position: fixed;
+        }
+        #content {
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+        }
+        .mt-4{
+            background-color: #f8f9fa;
+            border-radius:10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="modul_prediksi">Cycle Time</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('modul_prediksi') }}">Modul Prediksi</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Panel Kiri -->
+    <div id="sidebar">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <a href="{{ url_for('data') }}" class="text-decoration-none">Data</a>
+            </li>
+            <li class="list-group-item">
+                <a href="{{ url_for('prediksi') }}" class="text-decoration-none">Prediksi</a>
+            </li>
+        </ul>
+    </div>
+    <div class="overlay"></div>
+    
+    <!-- Konten Utama -->
+    <div id="content">
+        <h1 class="text-center">Halaman Prediksi</h1>
+        <hr>
+
+        <!-- Pesan -->
+        {% if message %}
+        <div class="alert alert-info">{{ message }}</div>
+        {% endif %}
+
+        <!-- Form untuk upload file CSV -->
+        <form method="POST" enctype="multipart/form-data" class="mb-4">
+            <div class="mb-3">
+                <label for="file" class="form-label">Upload File CSV</label><br>
+                <label for="file" class="form-label" style="color:red; font-weight:bold;">Import File per batch / setiap 10 station, harap edit jika lebih dari 10 station!!!</label>
+                <input type="file" name="file" class="form-control" required>
+            </div>
+            <button type="submit" name="import_csv" class="btn btn-primary">Import CSV</button>
+        </form>
+
+        <!-- Tabel data -->
+        {% if data %}
+        <h3>Data yang Diunggah</h3>
+        <div class="table-responsive">
+            {{ data | safe }}
+        </div>
+        {% endif %}
+
+        <!-- Tombol untuk encode data, train model, prediksi, dan simpan prediksi -->
+        <form method="POST">
+            <div class="d-flex flex-wrap gap-2">
+                <button type="submit" name="encode_data" class="btn btn-secondary">Encode Data</button>
+                <button type="submit" name="train_model" class="btn btn-success">Train Model</button>
+                <button type="submit" name="predict" class="btn btn-warning">Prediksi</button>
+                <button type="submit" name="save_prediction" class="btn btn-info">Simpan Hasil Prediksi</button>
+            </div>
+        </form>
+
+        <!-- Hasil Prediksi -->
+        {% if predictions %}
+        <div class="mt-4">
+            <h3>Hasil Prediksi</h3>
+            <p class="text-muted">
+                Hasil prediksi menunjukkan kategori yang diprediksi untuk setiap entri dalam data yang Anda unggah.
+                Setiap entri menunjukkan kategori yang telah dilatih oleh model. Berikut daftar hasil prediksi:
+            </p>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Kategori Prediksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i, pred in predictions %}
+                    <tr>
+                        <td>Data ke-{{ i }}</td>
+                        <td>{{ pred }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        <!-- Informasi Estimasi -->
+        {% if total_units is not none %}
+        <div class="mt-4">
+            <h3>Informasi Estimasi</h3>
+            <p class="text-muted">
+                Informasi estimasi ini menunjukkan perhitungan berdasarkan waktu siklus (`cycle_time`) yang Anda unggah
+                dan waktu kerja yang tersedia (diasumsikan 480 menit per hari). Detailnya sebagai berikut:
+            </p>
+            <ul>
+                <li>Total Unit: {{ total_units }} unit yang dapat diproduksi dalam waktu kerja.</li>
+                <li>Waktu Pengisian Awal: {{ waktu_pengisian_awal }} menit yang dibutuhkan untuk seluruh batch.</li>
+                <li>Waktu Efektif: {{ waktu_efektif }} menit waktu kerja yang tersedia.</li>
+                <li>Waktu per Unit: {{ waktu_per_unit }} menit waktu rata-rata untuk setiap unit.</li>
+                <li>Jumlah Batch: {{ jumlah_batch }} batch yang dapat diproduksi.</li>
+            </ul>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

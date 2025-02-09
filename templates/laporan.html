@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Prediksi</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .btn-back {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Tombol Kembali ke Halaman Data -->
+    <a href="{{ url_for('data') }}" class="btn btn-secondary btn-back">
+        <i class="bi bi-arrow-left-circle"></i> Kembali ke Data
+    </a>
+
+    <h1 class="text-center">Laporan Prediksi</h1>
+    <hr>
+
+    <!-- Pesan -->
+    {% if message %}
+    <div class="alert alert-info">{{ message }}</div>
+    {% endif %}
+
+    <!-- Tabel Laporan -->
+    {% if data %}
+    <h3>Data Hasil Prediksi</h3>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Tanggal</th>
+                    <th>Total Unit</th>
+                    <th>Jumlah Batch</th>
+                    <th>Prediksi Kategori</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ row['tanggal'] }}</td>
+                    <td class="total-unit">{{ row['total_unit'] }}</td>
+                    <td class="jumlah-batch">{{ row['jumlah_batch'] }}</td>
+                    <td>{{ row['kategori_prediksi'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Informasi Estimasi -->
+    <div class="mt-4">
+        <h3>Informasi Estimasi</h3>
+        <ul>
+            <li>Total Unit: <span id="total-unit">0</span> unit yang dapat diproduksi dalam waktu kerja.</li>
+            <li>Jumlah Batch: <span id="jumlah-batch">0</span> batch yang dapat diproduksi.</li>
+            <li>Pada Kolom Prediksi Kategori terdapat 10 angka yang berarti 10 station dimulai dari paling kiri dan 3 angka berbeda dengan arti dibawah ini :</li>
+            <li>Optimal = 2 dengan arti waktu tercepat</li>
+            <li>Most Optimal = 1 dengan arti waktu sedang</li>
+            <li>Moderate = 0 dengan arti waktu terlama</li>
+        </ul>
+    </div>
+
+    <!-- Tambahkan script untuk menghitung total unit & jumlah batch dari tabel -->
+    <script>
+        function hitungEstimasi() {
+            let totalUnit = 0;
+            let jumlahBatch = 0;
+
+            document.querySelectorAll('.total-unit').forEach(el => {
+                totalUnit += parseInt(el.innerText) || 0;
+            });
+
+            document.querySelectorAll('.jumlah-batch').forEach(el => {
+                jumlahBatch += parseInt(el.innerText) || 0;
+            });
+
+            document.getElementById('total-unit').innerText = totalUnit;
+            document.getElementById('jumlah-batch').innerText = jumlahBatch;
+        }
+
+        // Panggil fungsi saat halaman dimuat
+        window.onload = hitungEstimasi;
+    </script>
+
+    <!-- Tombol Print -->
+    <div class="mt-4 text-center">
+        <button class="btn btn-primary" onclick="window.print()">Print Laporan</button>
+    </div>
+{% else %}
+    <p>Tidak ada data untuk ditampilkan.</p>
+{% endif %}
+
+</body>
+</html>
