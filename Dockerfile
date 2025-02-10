@@ -1,14 +1,17 @@
-FROM python:3.9-slim-buster
+FROM python:3
+
+# Run in unbuffered mode
+ENV PYTHONUNBUFFERED=1 
 
 WORKDIR /app
 
-COPY requirements.txt .
-
-RUN apt-get update && apt-get install -y --no-install-recommends gcc build-essential libpq-dev default-libmysqlclient-dev # Jika diperlukan untuk MySQL atau dependensi lain
-
-RUN python -m venv /opt/venv
-RUN /opt/venv/bin/pip install -r requirements.txt
-
 COPY . .
 
-CMD ["/opt/venv/bin/gunicorn", "--bind", "0.0.0.0:$PORT", "app_main:app"]
+COPY requirements.txt .
+
+RUN apt-get update && apt-get install -y --no-install-recommends gcc build-essential libpq-dev default-libmysqlclient-dev
+
+# Install project dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+CMD ["gunicorn", "app_main:app"]
