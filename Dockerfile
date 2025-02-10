@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc build-essen
 RUN python -m venv /opt/venv
 RUN /opt/venv/bin/pip install -r requirements.txt
 
+RUN /bin/bash -c "source /opt/venv/bin/activate && which gunicorn" # Periksa jalur gunicorn
+RUN /bin/bash -c "source /opt/venv/bin/activate && which python" # Periksa jalur python
+
 COPY . .
 
 CMD ["/opt/venv/bin/gunicorn", "--bind", "0.0.0.0:$PORT", "app_main:app"]  # Corrected CMD instruction with double quotes
