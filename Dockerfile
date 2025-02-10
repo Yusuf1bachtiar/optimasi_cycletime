@@ -12,4 +12,4 @@ RUN /opt/venv/bin/pip install -r requirements.txt
 
 COPY . .
 
-CMD ["/opt/venv/bin/gunicorn", "--bind", "0.0.0.0:$PORT", "app_main:app"]  # Corrected CMD instruction
+CMD ["/opt/venv/bin/gunicorn", "--bind", "0.0.0.0:$PORT", "app_main:app"]  # Corrected CMD instruction with double quotes
