@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc build-essen
 RUN python -m venv /opt/venv
 RUN /opt/venv/bin/pip install -r requirements.txt
 
+COPY check_venv.py /app/
+RUN /bin/bash -c "source /opt/venv/bin/activate && python /app/check_venv.py"
+
 RUN /bin/bash -c "source /opt/venv/bin/activate && which gunicorn" # Periksa jalur gunicorn
 RUN /bin/bash -c "source /opt/venv/bin/activate && which python" # Periksa jalur python
 
