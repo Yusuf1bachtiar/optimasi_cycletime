@@ -4,11 +4,11 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN apt-get update && apt-get install -y --no-install-recommends gcc build-essential libpq-dev default-libmysqlclient-dev # Jika diperlukan
+RUN apt-get update && apt-get install -y --no-install-recommends gcc build-essential libpq-dev default-libmysqlclient-dev # Jika diperlukan untuk MySQL atau dependensi lain
 
 RUN python -m venv /opt/venv
 RUN /opt/venv/bin/pip install -r requirements.txt
 
 COPY . .
 
-CMD ["/opt/venv/bin/python", "app_main.py"]  # Ganti app_main.py dengan nama file aplikasi Anda
+CMD ["/opt/venv/bin/gunicorn", "--bind", "0.0.0.0:$PORT", "app_main:app"]
